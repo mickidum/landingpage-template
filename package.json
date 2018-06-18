@@ -1,5 +1,5 @@
 {
-  "name": "foundation-new-starter-template",
+  "name": "landingpage-template",
   "version": "1.0.0",
   "description": "Foundation - Start HTML Template",
   "main": "index.js",
@@ -8,7 +8,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/mickidum/foundation-new-starter-template.git"
+    "url": "git+https://github.com/mickidum/landingpage-template.git"
   },
   "keywords": [
     "Foundation",
@@ -35,9 +35,9 @@
     "vinyl-ftp": "^0.6.0"
   },
   "bugs": {
-    "url": "https://github.com/mickidum/foundation-new-starter-template/issues"
+    "url": "https://github.com/mickidum/landingpage-template/issues"
   },
-  "homepage": "https://github.com/mickidum/foundation-new-starter-template#readme",
+  "homepage": "https://github.com/mickidum/landingpage-template#readme",
   "dependencies": {
     "node-sass": "^4.9.0"
   }
