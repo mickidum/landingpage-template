@@ -1,0 +1,17 @@
+{
+  "directory": "app/libs/",
+  "name": "foundation-sites-template",
+  "version": "1.0.0",
+  "dependencies": {
+    "foundation-sites": "latest",
+    "motion-ui": "latest",
+    "sweetalert2": "^7.22.2"
+  },
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "libs",
+    "test",
+    "tests"
+  ]
+}
