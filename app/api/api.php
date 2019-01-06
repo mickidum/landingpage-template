@@ -28,7 +28,6 @@ if($_POST) {
 $safe_post = array_map('test_input', $_POST);
 
 // $to = 'michael@zur4win.com';
-// $to = 'merav@atidim.co.il, ortalg@atidim.co.il';
 
 $table_content = fopen('table_content.txt', 'w'); 
 $file = fopen('maof_list.html', 'a+'); 
