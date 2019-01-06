@@ -27,7 +27,8 @@ gulp.task('common-js', function() {
 		])
 	.pipe(concat('common.min.js'))
 	.pipe(uglify())
-	.pipe(gulp.dest('app/js'));
+	.pipe(gulp.dest('app/js'))
+	.pipe(browserSync.reload({stream: true}));
 });
 
 gulp.task('js',  function() {
@@ -55,6 +56,11 @@ gulp.task('browser-sync', function() {
 	});
 });
 
+gulp.task('code', function() {
+	return gulp.src('app/*.html')
+	.pipe(browserSync.reload({ stream: true }))
+});
+
 gulp.task('sass', function() {
 	return gulp.src('app/scss/**/*.scss')
 	.pipe(sass({
@@ -67,11 +73,19 @@ gulp.task('sass', function() {
 	.pipe(browserSync.reload({stream: true}));
 });
 
-gulp.task('watch', ['sass', 'js', 'browser-sync'], function() {
-	gulp.watch('app/scss/**/*.scss', ['sass']);
-	gulp.watch(['libs/**/*.js', 'app/js/common.js'], ['js', 'common-js']);
-	gulp.watch('app/*.html', browserSync.reload);
+// gulp.task('watch', ['sass', 'js', 'browser-sync'], function() {
+// 	gulp.watch('app/scss/**/*.scss', ['sass']);
+// 	gulp.watch(['libs/**/*.js', 'app/js/common.js'], ['js', 'common-js']);
+// 	gulp.watch('app/*.html', browserSync.reload);
+// });
+
+gulp.task('watch', function() {
+	gulp.watch('app/scss/**/*.scss', gulp.parallel('sass'));
+	gulp.watch('libs/**/*.js', gulp.parallel('js'));
+	gulp.watch('app/js/common.js', gulp.parallel('common-js'));
+	gulp.watch('app/*.html', gulp.parallel('code'))
 });
+	
 
 gulp.task('imagemin', function() {
 	return gulp.src('app/img/**/*')
@@ -79,7 +93,11 @@ gulp.task('imagemin', function() {
 	.pipe(gulp.dest('dist/img')); 
 });
 
-gulp.task('build', ['removedist', 'imagemin', 'sass', 'js'], function() {
+gulp.task('build', function() {
+	gulp.parallel('removedist');
+	gulp.parallel('imagemin');
+	gulp.parallel('sass');
+	gulp.parallel('js');
 
 	var buildFiles = gulp.src([
 		'app/*.html',
@@ -122,4 +140,5 @@ gulp.task('deploy', function() {
 gulp.task('removedist', function() { return del.sync('dist'); });
 gulp.task('clearcache', function () { return cache.clearAll(); });
 
-gulp.task('default', ['watch']);
+// gulp.task('default', ['watch']);
+gulp.task('default', gulp.parallel('watch', 'browser-sync'));

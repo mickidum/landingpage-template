@@ -1,6 +1,5 @@
 jQuery(document).ready(function($) {
 $(document).foundation();
-
 	// FORM
 $('#myform').on('submit',  function(event) {
 		event.preventDefault();
@@ -52,3 +51,4 @@ function validForm(form) {
 	return true;
 }
 });
+
