@@ -1,13 +1,12 @@
 var gulp           = require('gulp'),
 		gutil          = require('gulp-util' ),
-		sass           = require('gulp-sass'),
+		gulpSass       = require('gulp-sass'),
 		browserSync    = require('browser-sync'),
 		concat         = require('gulp-concat'),
 		uglify         = require('gulp-uglify'),
 		cleanCSS       = require('gulp-clean-css'),
 		rename         = require('gulp-rename'),
-		// del            = require('del'),
-		imagemin       = require('gulp-imagemin'),
+		gulpImagemin   = require('gulp-imagemin'),
 		cache          = require('gulp-cache'),
 		autoprefixer   = require('gulp-autoprefixer'),
 		ftp            = require('vinyl-ftp'),
@@ -22,18 +21,19 @@ var sassPaths = [
   'app/libs/motion-ui/src'
 ];
 
-gulp.task('common-js', function() {
-	return gulp.src([
+function commonJs(cb) {
+	gulp.src([
 		'app/js/common.js',
 		])
 	.pipe(concat('common.min.js'))
 	.pipe(uglify())
 	.pipe(gulp.dest('app/js'))
 	.pipe(browserSync.reload({stream: true}));
-});
+	cb();
+}
 
-gulp.task('js',  function() {
-	return gulp.src([
+function js(cb) {
+	gulp.src([
 		'app/libs/jquery/dist/jquery.min.js',
 		'app/libs/what-input/dist/what-input.min.js',
 		'app/libs/foundation-sites/dist/js/foundation.min.js',
@@ -44,9 +44,10 @@ gulp.task('js',  function() {
 	// .pipe(uglify()) // Минимизировать весь js (на выбор)
 	.pipe(gulp.dest('app/js'))
 	.pipe(browserSync.reload({stream: true}));
-});
+	cb();
+}
 
-gulp.task('browser-sync', function() {
+function browser(cb) {
 	browserSync({
 		server: {
 			baseDir: 'app'
@@ -55,41 +56,45 @@ gulp.task('browser-sync', function() {
 		// tunnel: true,
 		// tunnel: "projectmane", //Demonstration page: http://projectmane.localtunnel.me
 	});
-});
+	cb();
+}
 
-gulp.task('code', function() {
-	return gulp.src('app/*.html')
-	.pipe(browserSync.reload({ stream: true }))
-});
+function code(cb) {
+	gulp.src('app/*.html')
+	.pipe(browserSync.reload({ stream: true }));
+	cb();
+}
 
-gulp.task('sass', function() {
-	return gulp.src('app/scss/**/*.scss')
-	.pipe(sass({
+function sass(cb) {
+	gulp.src('app/scss/**/*.scss')
+	.pipe(gulpSass({
 		includePaths: sassPaths,
 		outputStyle: 'expand'}).on("error", notify.onError()))
 	.pipe(rename({suffix: '.min', prefix : ''}))
-	.pipe(autoprefixer(['last 15 versions']))
-	.pipe(cleanCSS()) // Опционально, закомментировать при отладке
+	.pipe(autoprefixer(['last 2 versions']))
+	.pipe(cleanCSS()) // comment on debug
 	.pipe(gulp.dest('app/css'))
 	.pipe(browserSync.reload({stream: true}));
-});
+	cb();
+}
 
-gulp.task('watch', function() {
-	gulp.watch('app/scss/**/*.scss', gulp.parallel('sass'));
-	gulp.watch('libs/**/*.js', gulp.parallel('js'));
-	gulp.watch('app/js/common.js', gulp.parallel('common-js'));
-	gulp.watch('app/*.html', gulp.parallel('code'))
-});
+function watch(cb) {
+	gulp.watch('app/scss/**/*.scss', gulp.parallel(sass));
+	gulp.watch('libs/**/*.js', gulp.parallel(js));
+	gulp.watch('app/js/common.js', gulp.parallel(commonJs));
+	gulp.watch('app/*.html', gulp.parallel(code));
+	cb();
+}
 	
 
-gulp.task('imagemin', function() {
-	return gulp.src('app/img/**/*')
-	.pipe(cache(imagemin()))
+function imagemin(cb) {
+	gulp.src('app/img/**/*')
+	.pipe(cache(gulpImagemin()))
 	.pipe(gulp.dest('dist/img')); 
-});
+	cb();
+}
 
-gulp.task('deploy', function() {
-
+function deploy(cb) {
 	var conn = ftp.create({
 		host:      'hostname.com',
 		user:      'username',
@@ -102,15 +107,12 @@ gulp.task('deploy', function() {
 	'dist/**',
 	'dist/.htaccess',
 	];
-	return gulp.src(globs, {buffer: false})
+	gulp.src(globs, {buffer: false})
 	.pipe(conn.dest('/path/to/folder/on/server'));
+	cb();
+}
 
-});
 
-// gulp.task('removedist', function(cb) { del.sync('dist');cb(); });
-gulp.task('clearcache', function () { return cache.clearAll(); });
-
-gulp.task('default', gulp.parallel('watch', 'browser-sync'));
 
 function files(cb) {
 	var buildFiles = gulp.src([
@@ -138,5 +140,11 @@ function remDist(cb) {
 	rimraf('dist', cb);
 }
 
+function clearCache (cb) { 
+	cache.clearAll();
+	cb(); 
+}
 
-exports.build = gulp.series(remDist, gulp.parallel(gulp.task('imagemin'), gulp.task('sass'), gulp.task('js')), files);
+exports.build = gulp.series(remDist, gulp.parallel(imagemin, sass, js), files);
+exports.clearcache = gulp.parallel(clearCache);
+exports.default = gulp.parallel(watch, browser);
