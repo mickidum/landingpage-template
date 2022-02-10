@@ -39,6 +39,6 @@
   },
   "homepage": "https://github.com/mickidum/landingpage-template#readme",
   "dependencies": {
-    "node-sass": "^4.12.0"
+    "node-sass": "^7.0.0"
   }
 }
